@@ -18,7 +18,7 @@ public:
     {
     public:
         int id = 0;
-        int connected_arc_ids[4] = {0,0,0,0};
+        int connected_arc_ids[4] = {0,0,0,0}; // [N,E,S,W]
         int x_pos = 0;
         int y_pos = 0;
 
@@ -40,11 +40,9 @@ public:
         Arc(int id_, int cost_, int connected_node_ids_[2]);
     };
 
-    //std::vector<uint8_t> map;
-    //unsigned int map_width = 0;
-    //unsigned int map_height = 0;
     Map map;
     std::vector<Node> nodes;
+    std::vector<Arc> arcs;
 
     Node* p_start_node = nullptr;
     Node* p_end_node = nullptr;
@@ -58,8 +56,11 @@ public:
 
 
 private:
-    bool atPath(size_t x, size_t y);
-    bool atIntersection(size_t x, size_t y);
+    int next_node_id = 1;
+    int next_arc_id = 1;
+
+    bool atPath(int x, int y);
+    bool atIntersection(int x, int y);
     int createNodesAndArcs();
 
     void addAllConnections(Node* p_node);
@@ -67,6 +68,8 @@ private:
     void addBelowConnection(Node* p_node);
     void addLeftConnection(Node* p_node);
     void addRightConnection(Node* p_node);
+
+    Node* getNodeAtXY(int x, int y);
 };
 
 #endif

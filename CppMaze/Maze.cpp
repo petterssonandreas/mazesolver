@@ -31,6 +31,10 @@ Maze::Arc::Arc(int id_, int cost_, int connected_node_ids_[2])
 Maze::Maze(string map_file_name)
 {
     map = Map(map_file_name);
+    if (createNodesAndArcs() != 0)
+    {
+        cerr << "Something wnet wrong when creating the nodes and arcs" << endl;
+    }
 }
 
 
@@ -93,12 +97,12 @@ int Maze::createNodesAndArcs()
     return 0;
 }
 
-bool Maze::atPath(size_t x, size_t y)
+bool Maze::atPath(int x, int y)
 {
     return map.map_data.at(y*map.map_height + x) == PATH;
 }
 
-bool Maze::atIntersection(size_t x, size_t y)
+bool Maze::atIntersection(int x, int y)
 {
     if (atPath(x,y))
     {
@@ -147,28 +151,101 @@ bool Maze::atIntersection(size_t x, size_t y)
 void Maze::addAboveConnection(Node* p_node)
 {
     // Only search for connections adove the node
-    (void) p_node;
+    for (int y = p_node->y_pos - 1; y >= 0; --y)
+    {
+        if (!atPath(p_node->x_pos, y))
+        {
+            // Hit wall, stop
+            return;
+        }
+        Node* p_other = getNodeAtXY(p_node->x_pos, y);
+        if (p_other != nullptr)
+        {
+            int connection_array[2] = {p_other->id, p_node->id};
+            Arc arc(next_arc_id, (p_node->y_pos - y), connection_array);
+            p_other->connected_arc_ids[2] = next_arc_id;
+            p_node->connected_arc_ids[0] = next_arc_id;
+            ++next_arc_id;
+            arcs.push_back(arc);
+            break;
+        }
+    }
 }
-
 
 void Maze::addBelowConnection(Node* p_node)
 {
-    (void) p_node;
+    // Only search for connections below the node
+    for (int y = p_node->y_pos + 1; y < (signed) map.map_height; ++y)
+    {
+        if (!atPath(p_node->x_pos, y))
+        {
+            // Hit wall, stop
+            return;
+        }
+        Node* p_other = getNodeAtXY(p_node->x_pos, y);
+        if (p_other != nullptr)
+        {
+            int connection_array[2] = {p_other->id, p_node->id};
+            Arc arc(next_arc_id, (y - p_node->y_pos), connection_array);
+            p_other->connected_arc_ids[0] = next_arc_id;
+            p_node->connected_arc_ids[2] = next_arc_id;
+            ++next_arc_id;
+            arcs.push_back(arc);
+            break;
+        }
+    }
 }
 
 void Maze::addLeftConnection(Node* p_node)
 {
-    (void) p_node;
+    // Only search for connections left of the node
+    for (int x = p_node->x_pos - 1; x >= 0; --x)
+    {
+        if (!atPath(x, p_node->y_pos))
+        {
+            // Hit wall, stop
+            return;
+        }
+        Node* p_other = getNodeAtXY(x, p_node->y_pos);
+        if (p_other != nullptr)
+        {
+            int connection_array[2] = {p_other->id, p_node->id};
+            Arc arc(next_arc_id, (p_node->x_pos - x), connection_array);
+            p_other->connected_arc_ids[1] = next_arc_id;
+            p_node->connected_arc_ids[3] = next_arc_id;
+            ++next_arc_id;
+            arcs.push_back(arc);
+            break;
+        }
+    }
 }
 
 void Maze::addRightConnection(Node* p_node)
 {
-    (void) p_node;
+    // Only search for connections right of the node
+    for (int x = p_node->x_pos - 1; x < (signed) map.map_width; ++x)
+    {
+        if (!atPath(x, p_node->y_pos))
+        {
+            // Hit wall, stop
+            return;
+        }
+        Node* p_other = getNodeAtXY(x, p_node->y_pos);
+        if (p_other != nullptr)
+        {
+            int connection_array[2] = {p_other->id, p_node->id};
+            Arc arc(next_arc_id, (x - p_node->x_pos), connection_array);
+            p_other->connected_arc_ids[3] = next_arc_id;
+            p_node->connected_arc_ids[1] = next_arc_id;
+            ++next_arc_id;
+            arcs.push_back(arc);
+            return;
+        }
+    }
 }
 
 void Maze::addAllConnections(Node* p_node)
 {
-    // TODO: Write function
     if (p_node->x_pos == 0)
     {
         // First row, don't do anything
@@ -195,4 +272,17 @@ void Maze::addAllConnections(Node* p_node)
         cerr << "Node outside of maze" << endl;
         return;
     }
+}
+
+
+Maze::Node* Maze::getNodeAtXY(int x, int y)
+{
+    for (size_t i = 0; i < nodes.size(); ++i)
+    {
+        if (x == nodes.at(i).x_pos && y == nodes.at(i).y_pos)
+        {
+            return &nodes.at(i);
+        }
+    }
+    return nullptr;
 }
