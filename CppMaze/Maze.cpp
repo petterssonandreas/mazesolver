@@ -14,11 +14,6 @@ Maze::Node::Node(int id_, int x_pos_, int y_pos_)
     id = id_;
     x_pos = x_pos_;
     y_pos = y_pos_;
-    /*
-    for (size_t i = 0; i < 4; ++i)
-    {
-        connected_arc_ids[i] = connected_arc_ids_[i];
-    }*/
 }
 
 
@@ -33,11 +28,9 @@ Maze::Arc::Arc(int id_, int cost_, int connected_node_ids_[2])
 }
 
 
-Maze::Maze(std::vector<uint8_t> map_, unsigned int map_width_, unsigned int map_height_)
+Maze::Maze(string map_file_name)
 {
-    map = map_;
-    map_width = map_width_;
-    map_height = map_height_;
+    map = Map(map_file_name);
 }
 
 
@@ -53,9 +46,9 @@ int Maze::createNodesAndArcs()
     int next_arc_id = 1;
     (void) next_arc_id;
 
-    for (size_t r = 0; r < map_height; ++r)
+    for (size_t r = 0; r < map.map_height; ++r)
     {
-        for (size_t c = 0; c < map_width; ++c)
+        for (size_t c = 0; c < map.map_width; ++c)
         {
             if (r == 0)
             {
@@ -71,7 +64,7 @@ int Maze::createNodesAndArcs()
                     continue;
                 }
             }
-            else if (r == map_height - 1)
+            else if (r == map.map_height - 1)
             {
                 // Last row, find exit
                 if (atPath(c, r))
@@ -102,7 +95,7 @@ int Maze::createNodesAndArcs()
 
 bool Maze::atPath(size_t x, size_t y)
 {
-    return map.at(y*map_height + x) == PATH;
+    return map.map_data.at(y*map.map_height + x) == PATH;
 }
 
 bool Maze::atIntersection(size_t x, size_t y)
@@ -181,13 +174,13 @@ void Maze::addAllConnections(Node* p_node)
         // First row, don't do anything
         return;
     }
-    else if (p_node->x_pos == (signed) map_height-1)
+    else if (p_node->x_pos == (signed) map.map_height-1)
     {
         // Last row, only search above
         addAboveConnection(p_node);
         return;
     }
-    else if (p_node->x_pos > 0 && p_node->x_pos < (signed) map_height-1)
+    else if (p_node->x_pos > 0 && p_node->x_pos < (signed) map.map_height-1)
     {
         // All directions
         addAboveConnection(p_node);

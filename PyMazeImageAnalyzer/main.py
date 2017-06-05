@@ -23,6 +23,11 @@ print(height)
 print(data)
 
 f = open('mazelist', 'w')
+f.write(str(width))
+f.write(':')
+f.write(str(height))
+f.write(';')
+
 for i in range(0, height):
     for j in range(0, width):
         c = str(data[i*width + j])

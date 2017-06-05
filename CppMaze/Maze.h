@@ -4,6 +4,9 @@
 #include <vector>
 #include <cstdint>
 #include <cstddef>
+#include <string>
+
+#include "Map.h"
 
 #define WALL 0
 #define PATH 1
@@ -21,8 +24,6 @@ public:
 
         Node() = default;
         ~Node() = default;
-        Node(Node const &) = default;
-        Node(Node &&) = default;
         Node(int id_, int x_pos_, int y_pos_);
     };
 
@@ -36,14 +37,13 @@ public:
 
         Arc() = default;
         ~Arc() = default;
-        Arc(Arc const &) = default;
-        Arc(Arc &&) = default;
         Arc(int id_, int cost_, int connected_node_ids_[2]);
     };
 
-    std::vector<uint8_t> map;
-    unsigned int map_width = 0;
-    unsigned int map_height = 0;
+    //std::vector<uint8_t> map;
+    //unsigned int map_width = 0;
+    //unsigned int map_height = 0;
+    Map map;
     std::vector<Node> nodes;
 
     Node* p_start_node = nullptr;
@@ -53,7 +53,7 @@ public:
     ~Maze() = default;
     Maze(Maze const &) = default;
     Maze(Maze &&) = default;
-    Maze(std::vector<uint8_t> map_, unsigned int map_width_, unsigned int map_height_);
+    Maze(std::string map_file_name);
 
 
 
